@@ -1,0 +1,30 @@
+---
+
+# System required packages
+# the havegd package speed up password generation
+system_required:
+  - unattended-upgrades
+  - locales
+  - rblcheck
+  - fail2ban
+  - ufw
+  - rsync
+  - makepasswd
+  - haveged
+  - nginx
+  - acl
+  - certbot
+
+# Packages to exclude
+system_excluded:
+  - resolvconf
+
+###############################################################################
+# Dictionaries to install in the system
+dictionaries:
+  - name: English
+    id: en
+  - name: French
+    id: fr
+  - name: Spanish
+    id: es

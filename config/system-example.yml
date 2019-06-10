@@ -1,0 +1,54 @@
+---
+
+###############################################################################
+# Domain and hostname information
+network:
+  domain: homebox.space
+  hostname: backup-store
+  external_ip: 31.4.159.27
+
+###############################################################################
+# Once the system is in place, it is possible to use 'limit' for the rule,
+# instead of allow. It is also possible to use fail2ban, which is installed anyway
+# You can have as many sources as you want, with a comment to easily keep track
+# of your rules
+firewall:
+  ssh:
+    - src: any
+      rule: allow
+      comment: allow SSH from anywhere
+  output:
+    policy: deny
+    rules:
+      - dest: any
+        port: 80,443
+        comment: 'Allow web access'
+      - dest: any
+        proto: udp
+        port: 53
+        comment: 'Allow DNS requests'
+      - dest: any
+        proto: udp
+        port: 123
+        comment: 'Allow NTP requests'
+      - dest: any
+        proto: udp
+        from_port: 68
+        port: 67
+        comment: 'Allow DHCP requests'
+
+###############################################################################
+# Extra security values
+security:
+  auto_update: true
+  ssh_disable_root_access_with_password: true
+  ssh_disable_root_access: false
+  lock_root_password: true
+
+###############################################################################
+# Default system settings
+system:
+  release: stretch         # distribution to use (stretch/buster)
+  devel: false             # mark the system as a development machine
+  debug: false             # activate debug options
+  reboot_timeout: 180      # max time to wait when restarting the server

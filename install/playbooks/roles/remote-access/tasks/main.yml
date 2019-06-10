@@ -1,0 +1,20 @@
+---
+
+- name: Set the firewall rules
+  include_tasks: ufw-rules.yml
+
+- name: Remove root password access from SSH
+  when: security.ssh_disable_root_access_with_password
+  tags: security
+  notify: Restart SSH
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin yes'
+    replace: 'PermitRootLogin without-password'
+    mode: 0600
+
+- name: Lock root account
+  tags: security
+  user:
+    name: root
+    password_lock: '{{ security.lock_root_password }}'

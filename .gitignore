@@ -1,0 +1,14 @@
+# Ignore everything on the config folder, except sample and default files
+config/*
+!config/defaults.yml
+!config/*-example.yml
+
+# Ignore ansible error files
+*.retry
+
+# Ignore log files when running in CI environment
+logs/*
+
+# Sandbox folder for user tests
+sandbox/*
+!sandbox/readme.md

@@ -1,0 +1,9 @@
+---
+
+# hosts config
+all:
+  hosts:
+    backup-store:
+      ansible_host: 31.4.159.27
+      ansible_user: root
+      ansible_port: 22

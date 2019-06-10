@@ -1,0 +1,9 @@
+---
+
+# Install the storage server
+- hosts: backup-store
+  vars_files:
+    - '{{ playbook_dir }}/../../config/system.yml'
+  roles:
+    - system-prepare
+    - remote-access
