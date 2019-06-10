@@ -52,3 +52,32 @@ system:
   devel: false             # mark the system as a development machine
   debug: false             # activate debug options
   reboot_timeout: 180      # max time to wait when restarting the server
+
+###############################################################################
+# Backup settings and keys
+backup:
+  username: userbackups
+  keys_list:
+    - uuid: 895ca4fa-8b63-11e9-8609-3ba52727fc8d
+      expire: '2020-12-31'
+      email: bob@example.com
+      comment: backup@osaka
+      type: ecdsa-sha2-nistp384
+      data: >-
+        AAAAE2VjZHNhXkoPYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBPlBOzIxp+6MgozPqL
+        iSUgkpa5J08EmuyWhsIJskh34SDUUVEZtfU23FhQyI8SzFWcBKkHgbz0nsLgUtsxvTwXt8
+        adkiVRTKCBUF4uCNSZzah5h5U+m4MJumCRRCJQXxaQ==
+      state: present
+    - uuid: a21c1e7a-8b64-11e9-bf10-5f5b81ecdc4a
+      expire: '2020-12-31'
+      comment: SSH key for bali workstation
+      email: alice@example.com
+      type: ssh-rsa
+      data: >-
+        AAAAB3NzaC1yc2EAAAADAQABAAABAQCtj/2Qcmgdo2XHKUXrJ5wAeZKCeHeoP5FDPniaf1
+        jdZI3JwKNJGnJaWwxCp00QVJi6PmhkmBz5rAWgs+ZE1YUXIa3pFXYm/PLEiUMkh0SrX9O3
+        QBgXMSqkw1mymz34wWTUROkJ4/UtsXyvoe3eiQ/y8W9fJ/5SXzfTmmbC/WVe9qEVag6Bz2
+        CXsYDUQ5YOntm+eIc1S/HuSiKayf/PNrSenUQ6MQfxzI70+MVq9ZCPyA8KJ+ruQUUDCoPT
+        J64oha7HMJue8EPZawIbWLNmKEP2kspdpTsrPJ7f6XJ0hoorcDnqxXR7Ebk3WmLT0a59J/
+        FgWzrij2bC5ty80CtI3iP5
+      state: present

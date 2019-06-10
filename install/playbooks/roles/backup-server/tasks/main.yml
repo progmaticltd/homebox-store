@@ -1,0 +1,110 @@
+---
+
+- name: Install borg backup
+  apt:
+    name: borgbackup
+    state: installed
+
+- name: Add a group dedicated for backup
+  group:
+    name: '{{ backup.groupname | default("backups") }}'
+
+- name: Add backup user, with restricted access to SSH
+  user:
+    name: '{{ backup.username }}'
+    password_lock: true
+    shell: /bin/dash
+    group: '{{ backup.groupname | default("backups") }}'
+
+- name: Create the backup sub-folders for each key
+  file:
+    owner: '{{ backup.username }}'
+    group: '{{ backup.groupname | default("backups") }}'
+    path: '/home/{{ backup.username }}/{{ key.uuid }}'
+    state: directory
+    mode: 0700
+  with_items:
+    - '{{ backup.keys_list }}'
+  loop_control:
+    loop_var: key
+
+- name: Create the folder to store the scripts
+  tags: scripts
+  file:
+    path: '/home/{{ backup.username }}/scripts/'
+    state: directory
+    mode: 0700
+    owner: '{{ backup.username }}'
+    group: '{{ backup.groupname | default("backups") }}'
+
+- name: Copy the expiring keys script
+  tags: scripts
+  copy:
+    src: check-expired.sh
+    dest: '/home/{{ backup.username }}/scripts/check-expired.sh'
+    owner: '{{ backup.username }}'
+    group: '{{ backup.groupname | default("backups") }}'
+    mode: 0700
+
+- name: Remove expired keys first
+  shell: >-
+    sed -i '/{{ expr }}/d' '/home/{{ backup.username }}/.ssh/authorized_keys'
+  with_items:
+    - '^# command=.*'
+    - '^# .*:expired'
+  loop_control:
+    loop_var: expr
+
+- name: Add the keys specified in the configuration
+  authorized_key:
+    user: '{{ backup.username }}'
+    key: >-
+      {{ key.type }}
+      {{ key.data | regex_replace(" ") }}
+      {{ key.comment }}
+    key_options: >-
+      command="borg serve
+      --restrict-to-path
+      /home/{{ backup.username }}/{{ key.uuid }}",restrict
+    state: '{{ key.state | default("present") }}'
+  with_items:
+    - '{{ backup.keys_list }}'
+  loop_control:
+    loop_var: key
+
+- name: Replace comments in the authorized_keys file if already existing
+  replace:
+    path: '/home/{{ backup.username }}/.ssh/authorized_keys'
+    regexp: '^# {{ key.uuid }}:.*'
+    replace: >-
+      # {{ key.uuid }}:{{ key.email }}:{{ (key.expire | to_datetime("%Y-%m-%d")).strftime("%s") }}:{{ key.state }}
+  with_items:
+    - '{{ backup.keys_list }}'
+  loop_control:
+    loop_var: key
+
+- name: Add comments in the authorized_keys file
+  lineinfile:
+    path: '/home/{{ backup.username }}/.ssh/authorized_keys'
+    line: >-
+      # {{ key.uuid }}:{{ key.email }}:{{ (key.expire | to_datetime("%Y-%m-%d")).strftime("%s") }}:{{ key.state }}
+    insertbefore: '^command=.*({{ key.uuid }}).*'
+    firstmatch: true
+  with_items:
+    - '{{ backup.keys_list }}'
+  loop_control:
+    loop_var: key
+
+- name: Run the script to comment any expired key
+  become: true
+  become_user: '{{ backup.username }}'
+  become_method: su
+  shell: '/home/{{ backup.username }}/scripts/check-expired.sh'
+
+- name: Register the script in the cron service to run every day at midnight
+  cron:
+    hour: 0
+    minute: 0
+    user: '{{ backup.username }}'
+    name: check-expired-keys
+    job: '/home/{{ backup.username }}/scripts/check-expired.sh'
