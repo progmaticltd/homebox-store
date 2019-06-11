@@ -1,4 +1,3 @@
-
 This repository contains the code to deploy the minimal store used for backup tests in
 [Homebox](https://github.com/progmaticltd/homebox). However, you can use this code to deploy a backup server online for
 your homebox, with the SSH backend.

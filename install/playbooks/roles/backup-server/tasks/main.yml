@@ -48,7 +48,9 @@
 
 - name: Remove expired keys first
   shell: >-
+    test -f '/home/{{ backup.username }}/.ssh/authorized_keys' &&
     sed -i '/{{ expr }}/d' '/home/{{ backup.username }}/.ssh/authorized_keys'
+    || /bin/true
   with_items:
     - '^# command=.*'
     - '^# .*:expired'
